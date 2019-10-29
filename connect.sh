@@ -1,9 +1,9 @@
 #! /bin/bash
 
-mkdir -p ~/.wgcf
-chmod 700 ~/.wgcf
-prv=~/.wgcf/private.key
-usr=~/.wgcf/identity.cfg
+mkdir -p .wgcf
+chmod 700 .wgcf
+prv=.wgcf/private.key
+usr=.wgcf/identity.cfg
 
 tun="wg09"
 ip link delete ${tun}
@@ -41,14 +41,19 @@ else
     curl -s -H 'user-agent:' -H 'content-type: application/json' -H 'authorization: Bearer '"${reg[1]}"'' -X "PATCH" -d '"warp_enabled":true' 'https://api.cloudflareclient.com/v0i1909051800/reg/${token[0]}'
     echo "Requested Cloudflare enable WARP for new identity."
 fi
-
+set -x
 end=${cfg[1]%:*}
+endurl=($(echo $reg | jq -r '.result.config.peers[0].endpoint.host'))
+endipv4=($(echo $reg | jq -r '.result.config.peers[0].endpoint.v4'))
+endipv6=($(echo $reg | jq -r '.result.config.peers[0].endpoint.v6'))
 echo "${end}"
-sudo route -n delete "${end}" 2>/dev/null || true
-sudo route -n add "${end}" gw 192.168.0.1 # Need to determine gateway in script.
 
 sudo ifconfig "${tun}" inet "${cfg[2]}" "${cfg[2]}" netmask 255.255.255.255
-sudo wg set "${tun}" private-key "${prv}" peer "${cfg[0]}" endpoint "${cfg[1]}" allowed-ips 0.0.0.0/0
+sudo wg set "${tun}" private-key "${prv}" peer "${cfg[0]}" endpoint "${endurl}" allowed-ips 0.0.0.0/0
 
 sudo route add -net 0.0.0.0 netmask 128.0.0.0 dev ${tun}
 sudo route add -net 128.0.0.0 netmask 128.0.0.0 dev ${tun}
+
+ping ${endipv4%:*} -i 9
+
+ip link delete ${tun}
