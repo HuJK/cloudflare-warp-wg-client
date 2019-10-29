@@ -54,6 +54,3 @@ sudo wg set "${tun}" private-key "${prv}" peer "${cfg[0]}" endpoint "${endurl}" 
 sudo route add -net 0.0.0.0 netmask 128.0.0.0 dev ${tun}
 sudo route add -net 128.0.0.0 netmask 128.0.0.0 dev ${tun}
 
-ping ${endipv4%:*} -i 9
-
-ip link delete ${tun}
