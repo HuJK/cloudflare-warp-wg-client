@@ -1,9 +1,9 @@
 #! /bin/bash
 
-mkdir -p ~/.wgcf
-chmod 700 ~/.wgcf
-prv=~/.wgcf/private.key
-usr=~/.wgcf/identity.cfg
+mkdir -p $(pwd)/.wgcf
+chmod 700 $(pwd)/.wgcf
+prv=$(pwd)/.wgcf/private.key
+usr=$(pwd)/.wgcf/identity.cfg
 
 tun="wg09"
 ip link delete ${tun}
@@ -53,4 +53,3 @@ sudo wg set "${tun}" private-key "${prv}" peer "${cfg[0]}" endpoint "${endurl}" 
 
 sudo route add -net 0.0.0.0 netmask 128.0.0.0 dev ${tun}
 sudo route add -net 128.0.0.0 netmask 128.0.0.0 dev ${tun}
-
